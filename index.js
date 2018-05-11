@@ -162,11 +162,26 @@ function getImportStatements (dependencies) {
  * @param {object} functionExpression
  */
 function updateReturnStatement (functionExpression) {
-    functionExpression.body.body.forEach(function (node) {
-        if (node.type === 'ReturnStatement') {
-            node.update(node.source().replace('return ', 'export default '));
-        }
-    });
+    switch (functionExpression.type) {
+        case 'FunctionExpression':
+            functionExpression.body.body.forEach(function (node) {
+                if (node.type === 'ReturnStatement') {
+                    node.update(node.source().replace('return ', 'export default '));
+                }
+            });
+            break;
+
+        case 'ArrowFunctionExpression':
+            functionExpression.body.body.forEach(function (node) {
+                if (node.type === 'ReturnStatement') {
+                    node.update(node.source().replace('return ', 'export default '));
+                }
+            });
+            break;
+
+        default:
+            throw TypeError('Unknown function expression: ' + functionExpression.body.raw);
+    }
 }
 
 /**
@@ -305,6 +320,16 @@ function isModuleDefinition (node) {
 
     // eg. require(function () {}) or define(function () {})
     if (arrayEquals(argTypes, ['FunctionExpression'])) {
+        return true;
+    }
+
+    // eg. require(['a', 'b'], () => {})
+    if (arrayEquals(argTypes, ['ArrayExpression', 'ArrowFunctionExpression'])) {
+        return true;
+    }
+
+    // eg. require(() => {}) or define(() => {})
+    if (arrayEquals(argTypes, ['ArrowFunctionExpression'])) {
         return true;
     }
 }

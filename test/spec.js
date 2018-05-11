@@ -13,6 +13,9 @@ var makeTest = function (name) {
     };
 
 };
+
+makeTest('define-arrow-function');
+makeTest('define-arrow-function-assignment-expression');
 makeTest('define-with-deps');
 makeTest('define-no-deps');
 makeTest('require-with-deps');
